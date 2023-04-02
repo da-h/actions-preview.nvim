@@ -203,12 +203,19 @@ local function diff_workspace_edit(workspace_edit, offset_encoding)
       local path = vim.fn.fnamemodify(vim.uri_to_fname(uri), ":.")
       local bufnr = vim.uri_to_bufnr(uri)
 
+      -- local eol = get_eol(bufnr)
+      -- local lines = get_lines(bufnr)
+      -- local old_text = table.concat(lines, eol)
+      difftext = vim.trim(diff_text_edits(changes, bufnr, offset_encoding))
+      -- vim.fn.system(string.format('echo "%s" > /tmp/diff', difftext))
       diff = diff
         .. table.concat({
           string.format("diff --code-actions a/%s b/%s", path, path),
           string.format("--- a/%s", path),
           string.format("+++ b/%s", path),
-          vim.trim(diff_text_edits(changes, bufnr, offset_encoding)),
+          vim.fn.system(string.format('wdiff -d <(echo "%s")', difftext)),
+          -- difftext,
+          -- vim.fn.system(string.format("echo '%s'", vim.trim(diff_text_edits(changes, bufnr, offset_encoding)))),
           "",
           "",
         }, "\n")
